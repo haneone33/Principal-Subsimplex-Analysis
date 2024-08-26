@@ -12,6 +12,10 @@ The sub-directory `Diatom` contains the materials for the analysis of the Diatom
 
 ## Installation
 
+```{r}
+source('PSA_init.R')
+```
+
 ## Description
 
 The function `psa` provides an implementation of PSA via Subsimplies (PSA-S) and PSA via Suborthants (PSA-O). The output includes scores, loading vectors, lower dimensional compositional representation, and the corresponding vertices of the lower dimensional simplices.
