@@ -40,5 +40,5 @@ X.res = compare_analysis(X)
 
 # produce dendrogram representations
 plotdendrogram2(X.psas)
-plodendgrogram2(X.psao)
+plotdendrogram2(X.psao)
 ```
