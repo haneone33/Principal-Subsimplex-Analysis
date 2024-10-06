@@ -11,6 +11,7 @@
 #'  + `V` new vertices
 #'  + `scores` Signed scores of the projection
 #'  + `mergedirection` The direction of the merge, with positive pointing towards positive score points.
+#' @noRd
 
 projectsuborthant <- function(X, V = diag(ncol(X)), v1, v2, w){
   #define normal vector to new suborthant, pointing away from v1:

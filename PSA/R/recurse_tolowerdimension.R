@@ -5,6 +5,7 @@
 #' @param maxsteps maximum number of merges to compute.
 #' @details
 #' + `Vbirth` keeps track of the merge that created each vertex. The merge is recorded acording to the destination dimension of the merge, so a value of `i` means the merge that created that vertex was creating the data for dimension `d - (i-1)`, where `d` is the starting dimension.
+#' @noRd
 recurse_tolowerdimension <- function(X, V = diag(ncol(X)),
           evaluator, projector,
           testweights = seq(0, 1, length.out = 100),

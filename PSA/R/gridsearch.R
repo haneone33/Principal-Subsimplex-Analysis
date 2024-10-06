@@ -2,6 +2,7 @@
 #' @param X matrix of data points for a simplex with vertices at the basis coordinates.
 #' @inheritParams gridsearch_pair
 #' @return The best pair and weight as a single row data frame (data frame for easier row binding and because the v1 and v2 are best stored as integers).
+#' @noRd
 gridsearch <- function(X, evaluator, testweights = seq(0, 1, length.out = 100), ...){
   if (ncol(X) == 2){
     pairs <- matrix(as.integer(c(1,2)), nrow = 2)
@@ -26,7 +27,7 @@ gridsearch <- function(X, evaluator, testweights = seq(0, 1, length.out = 100), 
 #' @param testweights A vector of weights to try.
 #' @param evaluator A function that evaluates each proposed merge and return a single non-negative value for the quality of the merge. Arguments of `X`, `v1`, `v2`, and `w` at least
 #' @param ... Passed to `evaluator`
-#' @export
+#' @noRd
 gridsearch_pair <- function(X, v1, v2,
                              testweights = seq(0, 1, length.out = 100),
                              evaluator,

@@ -17,5 +17,5 @@ and power transform PCA with power 1/2.
 A wrapper function of PSA and benchmark methods for convenience
 }
 \seealso{
-\code{\link[=psa]{psa()}}, \code{\link[=comp_pca]{comp_pca()}}, \code{\link[=comp_apca]{comp_apca()}}, \code{\link[=power_pca]{power_pca()}}
+\code{\link[=psa]{psa()}}, \code{\link[=comp_pca]{comp_pca()}}, \code{\link[=comp_apca]{comp_apca()}}, \code{\link[=comp_power_pca]{comp_power_pca()}}
 }

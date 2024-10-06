@@ -4,6 +4,7 @@
 #' The new vertex is computed as `w * V[v1, ] + (1-w) * V[v2, ]`, which is the convex combination of two vertices and is *not* a vector with L2-norm equal to 1.
 #' Scores a signed as positive if the difference between the input point and the projected point has a positive inner-product with the merge direction `V[v2, ] - V[v1, ]`.
 #' @inheritParams projectsuborthant
+#' @noRd
 projectsubsimplex <- function(X, V = diag(ncol(X)), v1, v2, w){
   #get new points without lowering dimension
   Xv1v2 <- X[, v1] + X[, v2]

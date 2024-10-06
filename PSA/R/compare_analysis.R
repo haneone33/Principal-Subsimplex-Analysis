@@ -5,7 +5,7 @@
 #' @return a list of data matrix `X` and outcomes of PSA-S, PSA-O, PCA, log-ratio PCA,
 #' and power transform PCA with power 1/2.
 #'
-#' @seealso [psa()], [comp_pca()], [comp_apca()], [power_pca()]
+#' @seealso [psa()], [comp_pca()], [comp_apca()], [comp_power_pca()]
 #' @export
 
 compare_analysis <- function(X){
@@ -19,7 +19,7 @@ compare_analysis <- function(X){
   X.psao = tryCatch(psa('o', X), error = function(e) e)
   X.pca = tryCatch(comp_pca(X), error = function(e) e)
   X.apca = tryCatch(comp_apca(X), error = function(e) e)
-  X.power_pca = tryCatch(power_pca(X), error = function(e) e)
+  X.power_pca = tryCatch(comp_power_pca(X), error = function(e) e)
 
   res = list(X = as.matrix(X),
              psas = X.psas, psao = X.psao,

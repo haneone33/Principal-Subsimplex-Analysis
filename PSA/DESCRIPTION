@@ -16,11 +16,8 @@ RoxygenNote: 7.3.2
 Imports: 
   stats,
   utils,
-  tidyr,
-  dplyr,
   graphics,
   ggplot2 (>= 3.4.0),
-  GGally,
   dendextend,
   compositions
 Depends:

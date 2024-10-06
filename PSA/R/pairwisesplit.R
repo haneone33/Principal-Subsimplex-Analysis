@@ -3,6 +3,7 @@
 #' The compositional data has the same number of rows as `weight` and begins as all `1`, with one component.
 #' @param weight A matrix specifying how the mass in the component is split.
 #' @param component A vector of integers specifying the component to be split each time.
+#' @noRd
 pairwisesubpartition <- function(weight, component = rep(1, ncol(weight))){
   X <- matrix(1, nrow = nrow(weight))
   for (i in 1:length(component)){

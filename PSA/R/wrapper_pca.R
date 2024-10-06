@@ -120,7 +120,7 @@ comp_apca <- function(X){
 #' @seealso [comp_pca()], [psa()]
 #'
 #' @export
-power_pca <- function(X, alpha = 1/2){
+comp_power_pca <- function(X, alpha = 1/2){
   X = X^alpha
   res = comp_pca(X)
   return(res)

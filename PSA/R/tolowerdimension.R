@@ -15,7 +15,7 @@
 #' @details If `merge` is not supplied and the *largest* score of the found merge is *negative*, then swaps the signs of the scores and records this by swapping the returned `v1` with `v2`, changing w to 1-w, and flipping the direction of `mergedirection`. This should mean that the returned merge information can be reapplied on new data and the direction will be the same.
 #'
 #' If `merge` is non-`NULL` then `evaluator` is ignored - no search occurs.
-
+#' @noRd
 tolowerdimension <- function(X, V = diag(1, ncol(X)), evaluator, projector, testweights = seq(0, 1, length.out = 100), merge = NULL){
   findmerge <- is.null(merge)
   if (findmerge){
