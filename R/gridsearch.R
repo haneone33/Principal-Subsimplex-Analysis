@@ -26,7 +26,6 @@ gridsearch <- function(X, evaluator, testweights = seq(0, 1, length.out = 100), 
 #' @param testweights A vector of weights to try.
 #' @param evaluator A function that evaluates each proposed merge and return a single non-negative value for the quality of the merge. Arguments of `X`, `v1`, `v2`, and `w` at least
 #' @param ... Passed to `evaluator`
-#' @export
 gridsearch_pair <- function(X, v1, v2,
                              testweights = seq(0, 1, length.out = 100),
                              evaluator,
