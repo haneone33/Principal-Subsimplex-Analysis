@@ -59,7 +59,7 @@ comp_pca <- function(X){
 #' @seealso [comp_pca()], [psa()]
 #'
 #' @export
-comp_logratio_pca <- function(X){
+comp_apca <- function(X){
 
   if(min(X) < 0){
     stop('X contains negative values')
@@ -120,7 +120,7 @@ comp_logratio_pca <- function(X){
 #' @seealso [comp_pca()], [psa()]
 #'
 #' @export
-comp_power_pca <- function(X, alpha = 1/2){
+power_pca <- function(X, alpha = 1/2){
   X = X^alpha
   res = comp_pca(X)
   return(res)
