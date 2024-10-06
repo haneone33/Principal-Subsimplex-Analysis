@@ -1,0 +1,31 @@
+Package: PSA
+Title: Principal Nested Simplices Analysis
+Version: 0.0.0.9000
+Authors@R: 
+  c(person("Hyeon", "Lee", email = "hyeonlee@unc.edu", role = c("aut", "cre")),
+    person("Kassel", "Hingee", role = "aut"),
+    person("Janice", "Scealy", role = "ctb"),
+    person("Andrew", "Wood", role = "ctb"),
+    person("Eric", "Grunsky", role = "ctb"),
+    person("J. S.", "Marron", role = "ctb"))
+Description: What the package does (one paragraph).
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+  stats,
+  utils,
+  tidyr,
+  dplyr,
+  graphics,
+  ggplot2 (>= 3.4.0),
+  GGally,
+  dendextend,
+  compositions
+Depends:
+  R (>= 4.0.0)
+Suggests:
+  testthat (>= 3.0.0)
+Enhance:
+  ggtern
