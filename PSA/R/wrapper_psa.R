@@ -37,7 +37,7 @@ psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
   
   if(type == 's'){
     
-    out = pssa(X, testweights)
+    out = pssa(X, testweights = testweights)
     res$vertices = out$vertices
     res$pts = out$pts
     for(i in names(out$pts)){
@@ -51,7 +51,7 @@ psa <- function(type, X, testweights = seq(0, 1, length.out = 100)){
     
   }else if(type == 'o'){
     
-    out = psoa(X, testweights)
+    out = psoa(X, testweights = testweights)
     res$vertices = out$vertices
     res$pts = out$pts
     for(i in names(out$pts)){

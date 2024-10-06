@@ -13,7 +13,6 @@ compare_analysis <- function(X){
   if(is.null(colnames(X))){
     colnames(X) = paste0('V',1:ncol(X))
   }
-  X.label = as.factor(X.label)
 
   X.psas = tryCatch(psa('s', X), error = function(e) e)
   X.psao = tryCatch(psa('o', X), error = function(e) e)
@@ -26,3 +25,4 @@ compare_analysis <- function(X){
              pca = X.pca, apca = X.apca, power_pca = X.power_pca)
   return(res)
 }
+

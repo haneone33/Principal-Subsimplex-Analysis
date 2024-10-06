@@ -1,3 +1,8 @@
+#' @title Map data to the simplex
+#' @description Map data to the simplex while preserving proportions.
+#' @param X a data matrix
+#' @return a matrix of the same dimension as `X`
+#' @export
 to_simplex <- function(X){
   if(min(X)<0){
     warning('X contains negative values')
