@@ -22,7 +22,7 @@ loading_bar <- function(v, max.k = 12){
                   vertex = factor(v>0, levels = c(T,F)))
   rownames(df) = NULL
 
-  g = ggplot2::ggplot(data = .data$df, aes(x = .data$variable, y = .data$value, fill = .data$vertex)) +
+  g = ggplot2::ggplot(data = df, aes(x = .data$variable, y = .data$value, fill = .data$vertex)) +
     geom_bar(stat = 'identity') +
     coord_flip() +
     theme_bw() +
