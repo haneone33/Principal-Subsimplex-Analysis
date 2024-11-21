@@ -1,14 +1,14 @@
 Package: PSA
-Title: Principal Nested Simplices Analysis
+Title: Principal Nested Simplex Analysis
 Version: 0.0.0.9000
 Authors@R: 
   c(person("Hyeon", "Lee", email = "hyeonlee@unc.edu", role = c("aut", "cre")),
-    person("Kassel", "Hingee", role = "aut"),
+    person("Kassel Liam", "Hingee", role = "aut"),
     person("Janice", "Scealy", role = "ctb"),
     person("Andrew", "Wood", role = "ctb"),
     person("Eric", "Grunsky", role = "ctb"),
     person("J. S.", "Marron", role = "ctb"))
-Description: What the package does (one paragraph).
+Description: Package ``PSA" provides tools to compute Principal Subsimplex Analysis (PSA) and visualize its modes of variation.
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
