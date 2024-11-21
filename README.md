@@ -1,6 +1,6 @@
 # Principal Nested Simplices
 
-This repository contains the code for replication of the results in the paper "Principal Nested Simplices" by Hyeon Lee, Kassel Liam Hingee, Janice . This repository also contains the package "PSA".
+This repository contains the code for replication of the results in the paper "Principal Subsimplex Analysis" by Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron (2024+). This repository also contains a package "PSA".
 
 The sub-directory `PSA` contains the contents for the package "PSA".
 
