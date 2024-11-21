@@ -1,4 +1,4 @@
-# Principal Nested Simplices
+# Principal Subsimplex Analysis
 
 This repository contains the code for replication of the results in the paper "Principal Subsimplex Analysis" by Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron (2024+). This repository also contains a package "PSA".
 
@@ -17,7 +17,7 @@ The sub-directory `Figures` contains the figures in the other sections. Some of 
 To install the package "PSA", please use the following code.
 ```{r}
 library(devtools)
-devtools::install_github("haneone33/Principal-Nested-Simplices")
+devtools::install_github("haneone33/Principal-Subsimplex-Analysis")
 ```
 
 ## Description
