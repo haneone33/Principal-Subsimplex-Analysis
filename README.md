@@ -17,7 +17,7 @@ The sub-directory `Figures` contains the figures in the other sections. Some of 
 To install the package "PSA", please use the following code.
 ```{r}
 library(devtools)
-devtools::install_github("haneone33/Principal-Subsimplex-Analysis")
+devtools::install_github("haneone33/Principal-Subsimplex-Analysis/PSA")
 ```
 
 ## Description
