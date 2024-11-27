@@ -1,3 +1,4 @@
+require(devtools)
 devtools::install_github('haneone33/Principal-Subsimplex-Analysis', subdir = 'PSA')
 library(PSA)
 
