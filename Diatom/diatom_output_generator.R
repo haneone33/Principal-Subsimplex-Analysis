@@ -1,4 +1,4 @@
-devtools::install_github('haneone33/Principal-Nested-Simplices', subdir = 'PSA')
+devtools::install_github('haneone33/Principal-Subsimplex-Analysis', subdir = 'PSA')
 library(PSA)
 
 require(compositions)
@@ -14,6 +14,8 @@ invisible(lapply(list.files('utils', pattern = '.R', full.names = T), source))
 
 data.path = 'Diatom/Data/'
 image.path = 'Diatom/Figures/'
+dir.create(data.path, showWarnings = F)
+dir.create(image.path, showWarnings = F)
 
 ################################################################################
 ## diatom preparation

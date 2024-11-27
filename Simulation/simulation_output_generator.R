@@ -1,4 +1,4 @@
-devtools::install_github('haneone33/Principal-Nested-Simplices', subdir = 'PSA')
+devtools::install_github('haneone33/Principal-Subsimplex-Analysis', subdir = 'PSA')
 library(PSA)
 
 require(compositions)
@@ -8,12 +8,15 @@ require(GGally)
 require(scales)
 require(cowplot) # plot_grid
 require(reshape) # parallel coordinate plot
+require(latex2exp)
 
 invisible(lapply(list.files('utils', pattern = '.R', full.names = T), source))
 source('Simulation/simulation_data_generating_functions.R')
 
 data.path = 'Simulation/Data/'
 image.path = 'Simulation/Figures/'
+dir.create(data.path, showWarnings = F)
+dir.create(image.path, showWarnings = F)
 
 ################################################################################
 ## Example 1 data generation
@@ -62,7 +65,7 @@ g.data <- ggtern(X.df, aes(x = V1, y = V3, z = V2, col = label)) +
   theme(plot.title = element_text(hjust = 0.5, size = 15)) +
   theme(legend.position = 'none')
 g.data <- ggplot_gtable(ggtern::ggplot_build(g.data))
-  
+
 g.psas = point_gpairs(ex1.res$psas$scores, ex.label) +
   ggtitle('PSA-S') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
