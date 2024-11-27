@@ -1,6 +1,6 @@
 # Principal Subsimplex Analysis
 
-This repository contains the code for replication of the results in the paper "Principal Subsimplex Analysis" by Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron (2024+). This repository also contains a package "PSA".
+This repository contains the code for replication of the results in the paper "Principal Subsimplex Analysis" by Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron (2024+). This repository also contains a package "PSA". `PSA` is in development towards a CRAN package.
 
 The sub-directory `PSA` contains the contents for the package "PSA".
 
@@ -21,7 +21,7 @@ devtools::install_github("haneone33/Principal-Subsimplex-Analysis", subdir = 'PS
 ```
 ## Instruction
 
-To run the code and reproduce the results of the paper, clone the repository to your computer or download the repository as a zip file and unzip.
+To reproduce the results of the paper, clone the repository to your computer or download the repository as a zip file and unzip.
 
 Set the repository as your working directory using
 ```{r}
@@ -36,9 +36,17 @@ setwd('path/to/the/repository/Principal-Subsimplex-Analysis-main')
 
 if downloaded and unziped.
 
-To reproduce the results for the Simulation section, run `Simulation/simulation_output_generator.R`. The first part of the file will prepare the environment: install the `PSA` package, load all the other required packages, source all helper functions from `utils` and `Simulation` direcotries.
+To reproduce the results and figures for the Simulation section, run the following:
 
-To reproduce the results for the Diatom section, run `Diatom/diatom_output_generator.R`. The first part of the file will prepare the environment: install the `PSA` package, load all the other required packages, source all helper functions from `utils` direcotry.
+```{r}
+source('Simulation/simulation_output_generator.R')
+```
+
+To reproduce the results and figures for the Diatom section, run the following:
+
+```{r}
+source('Diatom/diatom_output_generator.R')
+```
 
 ## Description
 
