@@ -1,6 +1,6 @@
 # Principal Subsimplex Analysis
 
-This repository contains the code for replication of the results in the paper "Principal Subsimplex Analysis" by Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron (2024+). This repository also contains a package "PSA". `PSA` is in development towards a CRAN package.
+This repository contains the code for replication of the results in the paper "Principal Subsimplex Analysis" by Hyeon Lee, Kassel Liam Hingee, Janice L. Scealy, Andrew T. A. Wood, Eric Grunsky, and J. S. Marron (2024+). This repository also contains a package "PSA". "PSA" is in development towards a CRAN package.
 
 The sub-directory `PSA` contains the contents for the package "PSA".
 
