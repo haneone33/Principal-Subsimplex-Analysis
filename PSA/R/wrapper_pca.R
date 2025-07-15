@@ -49,6 +49,16 @@ comp_pca <- function(X){
 }
 
 
+replace_zero <- function(X){
+  for(j in 1:ncol(X)){
+    x = X[,j]
+    x.min = min(x[x>0])
+    X[x<=0,j] = 0.5*x.min # substitute zeros by 0.5 times the minimum value
+  }
+  X = to_simplex(X)
+  return(X)
+}
+
 #' @title Log-Ratio Principal Component Analysis for PSA Comparison
 #' @description A wrapper function of `princomp.acomp()` for comparison to PSA.
 #' Zeros are substituted by half of the overall nonzero minimum. Manipulates
@@ -64,12 +74,9 @@ comp_apca <- function(X){
   if(min(X) < 0){
     stop('X contains negative values')
   }
-
   if(min(X) <= 0){
     warning('X contains zero values')
-    x.min = min(X[X>0])
-    X[X<=0] = 0.5*x.min # substitute zeros by 0.5 times the minimum value
-    X = to_simplex(X)
+    X = replace_zero(X)
   }
 
   n = nrow(X)

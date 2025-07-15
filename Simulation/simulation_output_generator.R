@@ -61,10 +61,11 @@ X.df = as.data.frame(ex1.res$X)
 X.df$label = ex.label
 g.data <- ggtern(X.df, aes(x = V1, y = V3, z = V2, col = label)) +
   geom_point() +
-  theme_classic() +
+  theme_bw() +
   ggtitle('Data') +
   theme(plot.title = element_text(hjust = 0.5, size = 15)) +
-  theme(legend.position = 'none')
+  theme(legend.position = 'none') +
+  labs(T = 'V3', L = 'V1', R = 'V2', x = NULL, y = NULL)
 g.data <- ggplot_gtable(ggtern::ggplot_build(g.data))
 
 g.psas = point_gpairs(ex1.res$psas$scores, ex.label) +
@@ -86,7 +87,7 @@ g.apca = point_gpairs(ex1.res$apca$scores, ex.label) +
 g = plot_grid(g.data,
               ggmatrix_gtable(g.psas),
               ggmatrix_gtable(g.psao),
-              ggmatrix_gtable(g.pca), 
+              ggmatrix_gtable(g.pca),
               ggmatrix_gtable(g.power),
               ggmatrix_gtable(g.apca), nrow = 2)
 
@@ -118,6 +119,16 @@ g = plot_grid(ggdraw(), title.col,
               rel_heights = c(0.3, 2), rel_widths = c(0.4,5))
 
 ggsave('ex1_loading_bar.jpeg', g, path = image.path, width = 12, height = 2.3)
+
+
+ex1.rss = rbind(ex1.res$psas$rss,
+                ex1.res$psao$rss,
+                ex1.res$pca$rss,
+                ex1.res$power_pca$rss,
+                ex1.res$apca$rss)
+rownames(ex1.rss) = c('PSA-S','PSA-O','PCA','Power transform','Log-ratio')
+g = plot_variance_explained(ex1.rss)
+ggsave('ex1_variance_explained.jpeg', g, path = image.path, width = 8, height = 3)
 
 ################################################################################
 ## Example 2
@@ -156,7 +167,7 @@ g.apca = point_gpairs(ex2.res$apca$scores, ex.label, k = 3) +
 g = plot_grid(g.data,
               ggmatrix_gtable(g.psas),
               ggmatrix_gtable(g.psao),
-              ggmatrix_gtable(g.pca), 
+              ggmatrix_gtable(g.pca),
               ggmatrix_gtable(g.power),
               ggmatrix_gtable(g.apca), nrow = 2)
 
@@ -200,6 +211,16 @@ g = plot_grid(ggdraw(), title.col,
               rel_heights = c(0.3, 4), rel_widths = c(0.4,5))
 
 ggsave('ex2_loading_bar.jpeg', g, path = image.path, width = 12, height = 4.3)
+
+
+ex2.rss = rbind(ex2.res$psas$rss,
+                ex2.res$psao$rss,
+                ex2.res$pca$rss,
+                ex2.res$power_pca$rss,
+                ex2.res$apca$rss)
+rownames(ex2.rss) = c('PSA-S','PSA-O','PCA','Power transform','Log-ratio')
+g = plot_variance_explained(ex2.rss)
+ggsave('ex2_variance_explained.jpeg', g, path = image.path, width = 8, height = 3)
 
 ################################################################################
 ## Example 1 modes of variation
@@ -289,3 +310,4 @@ g2 = g2 + annotate(geom = 'text', x = -0.7, y = 0.7,
 
 g = plot_grid(g0, g1, g2, nrow = 1)
 ggsave('ex1_PSA_modes.jpeg', g, path = image.path, width = 13*0.75, height = 4*0.8)
+

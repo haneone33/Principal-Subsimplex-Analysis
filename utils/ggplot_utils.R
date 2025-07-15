@@ -3,7 +3,7 @@ gg_color_hue <- function(n) {
   hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
-plot.lims <- function(x){
+get_lims <- function(x){
   llim = min(x) - 0.1*(max(x)-min(x))
   ulim = max(x) + 0.1*(max(x)-min(x))
   return(c(llim, ulim))
