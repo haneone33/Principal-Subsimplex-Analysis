@@ -1,9 +1,7 @@
-line_lowerfun <- function(data, mapping, col.point, col.line, shape, size, limits){
+line_lowerfun <- function(data, mapping, col.point, col.line, shape, size){
   ggplot(data = data, mapping = mapping) +
     geom_path(col = col.line, linewidth = 0.5) +
-    geom_point(col = col.point, stroke = 1, shape = shape, size = size) +
-    scale_x_continuous(limits = limits) +
-    scale_y_continuous(limits = limits)
+    geom_point(col = col.point, stroke = 1, shape = shape, size = size)
 }
 
 jitter_diag <- function(data, mapping, col.point, shape, size){
@@ -15,16 +13,15 @@ jitter_diag <- function(data, mapping, col.point, shape, size){
     theme_void()
 }
 
-quantile_diag <- function(data, mapping, col.point, col.line, shape, size, limits){
+quantile_diag <- function(data, mapping, col.point, col.line, shape, size){
   ggplot(data, mapping) +
     scale_y_continuous(trans = 'reverse') +
     geom_path(aes(y = Depth), col = col.line, linewidth = 0.5) +
     geom_point(aes(y = Depth), col = col.point, stroke = 1, shape = shape, size = size) +
-    theme_void() +
-    scale_x_continuous(limits = limits)
+    theme_void()
 }
 
-line_gpairs <- function(data, col.point, col.line, shape, size, limits, columns = 1:4){
+line_gpairs <- function(data, col.point, col.line, shape, size, columns = 1:5){
   data = as.data.frame(data)
   data$Depth = diatom.df$Depth
   g = ggpairs(data, columns = columns,
@@ -32,15 +29,10 @@ line_gpairs <- function(data, col.point, col.line, shape, size, limits, columns 
                                              col.point = col.point,
                                              col.line = col.line,
                                              shape = shape,
-                                             size = size,
-                                             limits = limits)),
-              diag = list(continuous = wrap(quantile_diag,
-                                            col.point = col.point,
-                                            col.line = col.line,
-                                            shape = shape,
-                                            size = size,
-                                            limits = limits)),
+                                             size = size)),
+              diag = NULL,
               upper = NULL) +
     theme_bw() +
     theme(plot.title = element_text(hjust = 0.5, size = 15))
+  return(g)
 }

@@ -48,12 +48,18 @@ comp_pca <- function(X){
   return(res)
 }
 
-
-replace_zero <- function(X){
+#' @title Replace zeros by a fraction of columnwise minimum of nonzero observations
+#'
+#' @param X a data matrix. Columns are features and rows are samples.
+#' @param alpha a positive scalar between 0 and 1. Zeros are replaced by alpha times
+#'  the minimum of nonzero observations
+#'
+#' @export
+replace_zero <- function(X, alpha = 0.5){
   for(j in 1:ncol(X)){
     x = X[,j]
     x.min = min(x[x>0])
-    X[x<=0,j] = 0.5*x.min # substitute zeros by 0.5 times the minimum value
+    X[x<=0,j] = alpha*x.min
   }
   X = to_simplex(X)
   return(X)
