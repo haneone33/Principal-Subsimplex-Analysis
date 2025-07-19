@@ -1,8 +1,5 @@
-library(compositions)
-library(ggplot2)
-
 #' @title Multivariate normal random sample
-#' 
+#'
 #' @param n number of points to generate.
 #' @param center mean.
 #' @param Sigma variance matrix. Alternatively, a scalar can be given.
@@ -29,11 +26,11 @@ make_cluster <- function(center, n, Sigma, margin = 0){
 }
 
 #' @title Make a toy example
-#' 
+#'
 #' @param centers list of cluster centers.
 #' @param n size of each cluster.
 #' @param sigma2 vector of variances of clusters.
-#' 
+#'
 #' @return a matrix of sample points.
 #' @export
 make_toy_example <- function(centers, n = 40, sigma2 = 0.04^2, margin = 1e-8){
