@@ -1,3 +1,11 @@
+library(devtools)
+devtools::install_github("haneone33/Principal-Subsimplex-Analysis", subdir = 'PSA')
+library(PSA)
+
+library(ggplot2)
+library(ggtern)
+library(compositions)
+
 invisible(lapply(list.files('utils', pattern = '.R', full.names = T), source))
 
 ## PCA failure
@@ -13,7 +21,7 @@ X = rbind(X, matrix(c(0.01, 0.01, 0.98,
                       0.9, 0.05, 0.05),
                     byrow = T, ncol = 3))
 
-X = as.data.frame(X)          
+X = as.data.frame(X)
 colnames(X) = c('V1','V2','V3')
 
 X.pca = princomp(X)
