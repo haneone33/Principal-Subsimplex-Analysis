@@ -1,5 +1,5 @@
 require(devtools)
-devtools::install_github('haneone33/Principal-Subsimplex-Analysis', subdir = 'PSA')
+#devtools::install_github('haneone33/Principal-Subsimplex-Analysis', subdir = 'PSA')
 library(PSA)
 
 require(compositions)
@@ -28,10 +28,29 @@ diatom.df = read.csv(paste0(data.path, 'diatom.csv'))
 diatom.X = diatom.df[,-1]
 diatom.X = diatom.X[,names(sort(apply(diatom.X, 2, var), decreasing = T))] # sort by variance
 
+time.start = Sys.time()
+print(time.start)
+diatom.psas = psa('s', diatom.X)
+time.end = Sys.time()
+print(time.end)
+time.end - time.start
+
+time.start = Sys.time()
+print(time.start)
+diatom.psao = psa('o', to_simplex(diatom.X[,1:50]))
+time.end = Sys.time()
+print(time.end)
+time.end - time.start
+
+
 ## PSA application
-diatom.res = compare_analysis(diatom.X) # takes approximately an hour
-saveRDS(diatom.res, paste0(data.path, 'diatom_res.rds'))
+#diatom.res = compare_analysis(diatom.X)
+#saveRDS(diatom.res, paste0(data.path, 'diatom_res.rds'))
 diatom.res = readRDS(paste0(data.path, 'diatom_res.rds'))
+
+diatom.res$pca = flip_loading(diatom.res$pca, c(1,3))
+diatom.res$power_pca = flip_loading(diatom.res$power_pca, c(1, 3, 4))
+diatom.res$apca = flip_loading(diatom.res$apca, c(1,4))
 
 diatom.info = read.csv(paste0(data.path,'diatom codes.csv'))
 diatom.info$class[diatom.info$class == ''] = 'others'

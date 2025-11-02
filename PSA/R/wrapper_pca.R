@@ -138,3 +138,16 @@ comp_power_pca <- function(X, alpha = 1/2){
   res = comp_pca(X)
   return(res)
 }
+
+#' @export
+flip_loading <- function(pca, idx){
+  #   Input: a list containing the following instances:
+  #   - pts.approx, scores, rss, modes, loadings, center
+  #   This function flips the direction of ith loading vector for all i in idx
+  for(i in idx){
+    pca$loadings[,i] = -pca$loadings[,i]
+    pca$scores[,i] = -pca$scores[,i]
+    pca$modes[[i]] = -pca$modes[[i]]
+  }
+  return(pca)
+}

@@ -42,6 +42,9 @@ write.csv(df, paste0(data.path, 'ex1.csv'), row.names = F)
 ## PSA application
 ex1.res = compare_analysis(X1)
 
+ex1.res$pca = flip_loading(ex1.res$pca, c(1,2))
+ex1.res$power_pca = flip_loading(ex1.res$power_pca, c(1,2))
+
 ################################################################################
 ## Example 1 figures
 
@@ -144,6 +147,9 @@ write.csv(df, paste0(data.path, 'ex2.csv'), row.names = F)
 
 ## PSA application
 ex2.res = compare_analysis(X2)
+
+ex2.res$pca = flip_loading(ex2.res$pca, c(1,2,3,4))
+ex2.res$power_pca = flip_loading(ex2.res$power_pca, c(1,2,3,4))
 
 ## score scatter plot matrices
 g.data <- ggplot() + theme_void()
