@@ -1,8 +1,9 @@
 require(devtools)
-devtools::install_github('haneone33/Principal-Subsimplex-Analysis', subdir = 'PSA')
-library(PSA)
+devtools::install_github('haneone33/psacomp')
+library(psacomp)
 
-require(compositions)
+require(plyr)
+require(dplyr)
 require(ggplot2)
 require(ggtern)
 require(GGally)
@@ -10,12 +11,13 @@ require(scales)
 require(cowplot) # plot_grid
 require(reshape) # parallel coordinate plot
 require(latex2exp)
+require(compositions)
 
 invisible(lapply(list.files('utils', pattern = '.R', full.names = T), source))
 source('Simulation/simulation_data_generating_functions.R')
 
-data.path = 'Simulation/Data/'
-image.path = 'Simulation/Figures/'
+data.path = 'Simulation/Data_updated/'
+image.path = 'Simulation/Figures_updated/'
 dir.create(data.path, showWarnings = F)
 dir.create(image.path, showWarnings = F)
 
@@ -33,36 +35,42 @@ X1 = rbind(make_cluster(centers[[1]], ns[1], sigma2),
            make_cluster(centers[[2]], ns[2], sigma2),
            make_cluster(centers[[3]], ns[3], sigma2),
            make_cluster(centers[[4]], ns[4], sigma2))
+colnames(X1) = paste0('V',1:3)
 ex.label = as.factor(c(rep(1,ns[1]), rep(2,ns[2]), rep(3,ns[3]), rep(4,ns[4])))
 
-df = as.data.frame(cbind(ex.label, X1))
-colnames(df) = c('label','V1','V2','V3')
-write.csv(df, paste0(data.path, 'ex1.csv'), row.names = F)
+ex1.df = as.data.frame(X1)
+colnames(ex1.df) = c('V1','V2','V3')
+ex1.df$label = ex.label
+write.csv(ex1.df, paste0(data.path, 'ex1.csv'), row.names = F)
 
 ## PSA application
-ex1.res = compare_analysis(X1)
 
-ex1.res$pca = flip_loading(ex1.res$pca, c(1,2))
-ex1.res$power_pca = flip_loading(ex1.res$power_pca, c(1,2))
+ex1.psas = psa('s', X1)
+ex1.psao = psa('o', X1)
+ex1.pca = comp_pca(X1)
+ex1.power_pca = comp_power_pca(X1, 0.5)
+ex1.apca = comp_apca(X1)
+
+ex1.pca = flip_loading(ex1.pca, c(1,2))
+ex1.power_pca = flip_loading(ex1.power_pca, c(1,2))
 
 ################################################################################
 ## Example 1 figures
 
 ## ternary plot with rank 1 approximation
-g.data = ternary_pc(ex1.res, ex.label, 'data')
-g.psas = ternary_pc(ex1.res, ex.label, 'psas')
-g.psao = ternary_pc(ex1.res, ex.label, 'psao')
-g.pca = ternary_pc(ex1.res, ex.label, 'pca')
-g.power_pca = ternary_pc(ex1.res, ex.label, 'power')
-g.apca = ternary_pc(ex1.res, ex.label, 'logratio')
+g.data = ternary_pc(X1, ex.label, type = 'data')
+g.psas = ternary_pc(X1, ex.label, type = 'psas', X.res = ex1.psas)
+g.psao = ternary_pc(X1, ex.label, type = 'psao', X.res = ex1.psao)
+g.pca = ternary_pc(X1, ex.label, type = 'pca', X.res = ex1.pca)
+g.power_pca = ternary_pc(X1, ex.label, type = 'power', X.res = ex1.power_pca)
+g.apca = ternary_pc(X1, ex.label, type = 'logratio', X.res = ex1.apca)
 g = plot_grid(g.data, g.psas, g.psao, g.pca, g.power_pca, g.apca, nrow = 2)
 
 ggsave('ex1_ternary_pc.jpeg', g, path = image.path, width = 12, height = 8)
 
 ## score scatter plot matrices
-X.df = as.data.frame(ex1.res$X)
-X.df$label = ex.label
-g.data <- ggtern(X.df, aes(x = V1, y = V3, z = V2, col = label)) +
+
+g.data <- ggtern(ex1.df, aes(x = V1, y = V3, z = V2, col = label)) +
   geom_point() +
   theme_bw() +
   ggtitle('Data') +
@@ -71,19 +79,19 @@ g.data <- ggtern(X.df, aes(x = V1, y = V3, z = V2, col = label)) +
   labs(T = 'V3', L = 'V1', R = 'V2', x = NULL, y = NULL)
 g.data <- ggplot_gtable(ggtern::ggplot_build(g.data))
 
-g.psas = point_gpairs(ex1.res$psas$scores, ex.label) +
+g.psas = point_gpairs(ex1.psas$scores, ex.label) +
   ggtitle('PSA-S') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.psao = point_gpairs(ex1.res$psao$scores, ex.label) +
+g.psao = point_gpairs(ex1.psao$scores, ex.label) +
   ggtitle('PSA-O') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.pca = point_gpairs(ex1.res$pca$scores, ex.label) +
+g.pca = point_gpairs(ex1.pca$scores, ex.label) +
   ggtitle('PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.power = point_gpairs(ex1.res$power_pca$scores, ex.label) +
+g.power = point_gpairs(ex1.power_pca$scores, ex.label) +
   ggtitle('Power Transform PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.apca = point_gpairs(ex1.res$apca$scores, ex.label) +
+g.apca = point_gpairs(ex1.apca$scores, ex.label) +
   ggtitle('Log-ratio PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
 
@@ -105,16 +113,16 @@ title.col = plot_grid(ggdraw(), ggdraw() + draw_label('PSA-S'),
                       ggdraw(), ggdraw() + draw_label('Power Transform PCA'),
                       ggdraw(), ggdraw() + draw_label('Log-Ratio PCA'),
                       nrow = 1, rel_widths = rep(c(0.3,1),5))
-g.main = plot_grid(loading_bar(ex1.res$psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.res$apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+g.main = plot_grid(loading_bar(ex1.psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex1.apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
                    nrow = 2, byrow = F)
 
 g = plot_grid(ggdraw(), title.col,
@@ -124,11 +132,11 @@ g = plot_grid(ggdraw(), title.col,
 ggsave('ex1_loading_bar.jpeg', g, path = image.path, width = 12, height = 2.3)
 
 
-ex1.rss = rbind(ex1.res$psas$rss,
-                ex1.res$psao$rss,
-                ex1.res$pca$rss,
-                ex1.res$power_pca$rss,
-                ex1.res$apca$rss)
+ex1.rss = rbind(c(ex1.psas$RSS, 'PC3'=0),
+                c(ex1.psao$RSS, 'PC3'=0),
+                ex1.pca$RSS,
+                ex1.power_pca$RSS,
+                ex1.apca$RSS)
 rownames(ex1.rss) = c('PSA-S','PSA-O','PCA','Power transform','Log-ratio')
 g = plot_variance_explained(ex1.rss)
 ggsave('ex1_variance_explained.jpeg', g, path = image.path, width = 8, height = 3)
@@ -139,34 +147,40 @@ ggsave('ex1_variance_explained.jpeg', g, path = image.path, width = 8, height = 
 ## data generation
 set.seed(1)
 X2 = cbind(X1, matrix(rnorm(30*3, mean = 0, sd = sqrt(sigma2)), ncol = 3))
+colnames(X2) = paste0('V',1:6)
 X2 = to_simplex(X2)
 
-df = as.data.frame(cbind(ex.label, X2))
-colnames(df) = c('label', 'V1','V2','V3','V4','V5','V6')
-write.csv(df, paste0(data.path, 'ex2.csv'), row.names = F)
+ex2.df = as.data.frame(X2)
+colnames(ex2.df) = paste0('V',1:6)
+ex2.df$label = ex.label
+write.csv(ex2.df, paste0(data.path, 'ex2.csv'), row.names = F)
 
 ## PSA application
-ex2.res = compare_analysis(X2)
+ex2.psas = psa('s', X2)
+ex2.psao = psa('o', X2)
+ex2.pca = comp_pca(X2)
+ex2.power_pca = comp_power_pca(X2, 0.5)
+ex2.apca = comp_apca(X2)
 
-ex2.res$pca = flip_loading(ex2.res$pca, c(1,2,3,4))
-ex2.res$power_pca = flip_loading(ex2.res$power_pca, c(1,2,3,4))
+ex2.pca = flip_loading(ex2.pca, c(1,2,3,4))
+ex2.power_pca = flip_loading(ex2.power_pca, c(1,2,3,4))
 
 ## score scatter plot matrices
 g.data <- ggplot() + theme_void()
 
-g.psas = point_gpairs(ex2.res$psas$scores, ex.label, k = 3) +
+g.psas = point_gpairs(ex2.psas$scores, ex.label, k = 3) +
   ggtitle('PSA-S') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.psao = point_gpairs(ex2.res$psao$scores, ex.label, k = 3) +
+g.psao = point_gpairs(ex2.psao$scores, ex.label, k = 3) +
   ggtitle('PSA-O') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.pca = point_gpairs(ex2.res$pca$scores, ex.label, k = 3) +
+g.pca = point_gpairs(ex2.pca$scores, ex.label, k = 3) +
   ggtitle('PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.power = point_gpairs(ex2.res$power_pca$scores, ex.label, k = 3) +
+g.power = point_gpairs(ex2.power_pca$scores, ex.label, k = 3) +
   ggtitle('Power Transform PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.apca = point_gpairs(ex2.res$apca$scores, ex.label, k = 3) +
+g.apca = point_gpairs(ex2.apca$scores, ex.label, k = 3) +
   ggtitle('Log-ratio PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
 
@@ -190,26 +204,26 @@ title.col = plot_grid(ggdraw(), ggdraw() + draw_label('PSA-S'),
                       ggdraw(), ggdraw() + draw_label('Power Transform PCA'),
                       ggdraw(), ggdraw() + draw_label('Log-Ratio PCA'),
                       nrow = 1, rel_widths = rep(c(0.2,1),5))
-g.main = plot_grid(loading_bar(ex2.res$psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psas$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psas$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psao$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$psao$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$power_pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$power_pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$apca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.res$apca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+g.main = plot_grid(loading_bar(ex2.psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psas$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psas$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psao$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.psao$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.power_pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.power_pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.apca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   loading_bar(ex2.apca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
                    nrow = 4, byrow = F)
 
 g = plot_grid(ggdraw(), title.col,
@@ -219,11 +233,11 @@ g = plot_grid(ggdraw(), title.col,
 ggsave('ex2_loading_bar.jpeg', g, path = image.path, width = 12, height = 4.3)
 
 
-ex2.rss = rbind(ex2.res$psas$rss,
-                ex2.res$psao$rss,
-                ex2.res$pca$rss,
-                ex2.res$power_pca$rss,
-                ex2.res$apca$rss)
+ex2.rss = rbind(c(ex2.psas$RSS, 'PC6'=0),
+                c(ex2.psao$RSS, 'PC6'=0),
+                ex2.pca$RSS,
+                ex2.power_pca$RSS,
+                ex2.apca$RSS)
 rownames(ex2.rss) = c('PSA-S','PSA-O','PCA','Power transform','Log-ratio')
 g = plot_variance_explained(ex2.rss)
 ggsave('ex2_variance_explained.jpeg', g, path = image.path, width = 8, height = 3)
@@ -242,13 +256,13 @@ g0 = empty_tern(c('V1','V2','V3')) +
         legend.position = 'none')
 
 ## PSAS
-v1 = ex1.res$psas$vertices$`r=2`[2,]
-v2 = ex1.res$psas$vertices$`r=2`[1,]
-mu = ex1.res$psas$vertices$`r=1`
+v1 = ex1.psas$Vhat$`r=1`[,2]
+v2 = ex1.psas$Vhat$`r=1`[,1]
+mu = ex1.psas$backwards_mean
 vdiff = c(1,0,-1)
 u1 = mu - mu[1]/vdiff[1]*vdiff
 u2 = mu - mu[3]/vdiff[3]*vdiff
-X.center = as.data.frame(ex1.res$psas$vertices$`r=1`)
+X.center = t(as.data.frame(ex1.psas$backwards_mean))
 mode1 = as.data.frame(rbind(v1, v2))
 mode2 = as.data.frame(rbind(u1, u2))
 g1 = empty_tern(c('V1','V2','V3')) +
@@ -275,13 +289,13 @@ g1 = g1 + annotate(geom = 'text', x = -0.7, y = 0.7,
            label = TeX(r'($\hat{V}^{(0)}_1$)'))
 
 ## PSAO
-v1 = ex1.res$psao$vertices$`r=2`[2,]
-v2 = ex1.res$psao$vertices$`r=2`[1,]
+v1 = ex1.psao$Vhat$`r=1`[,2]
+v2 = ex1.psao$Vhat$`r=1`[,1]
 nvec = c(-v2[3], 0, v2[1])
-mu = ex1.res$psao$vertices$`r=1`
+mu = ex1.psao$backwards_mean
 u1 = nvec - nvec[1]/mu[1]*mu
 u2 = nvec - nvec[3]/mu[3]*mu
-X.center = as.data.frame(ex1.res$psao$vertices$`r=1`)
+X.center = t(as.data.frame(ex1.psao$backwards_mean))
 mode1 = as.data.frame(rbind(v1, v2))
 mode2 = as.data.frame(rbind(u1, u2))
 g2 = empty_tern(c('V1','V2','V3')) +
@@ -296,7 +310,7 @@ g2 = empty_tern(c('V1','V2','V3')) +
 for(t in c(1:9)/10){
   x = c(0, t, 1-t)
   x = x/sqrt(sum(x^2))
-  v = ex1.res$psao$vertices$`r=2`[1,]
+  v = ex1.psao$backwards_mean
   names(v) = NULL
   v = c(-v[3],0,v[1])
   z = (x-sum(x*v)*v)/sin(acos(sum(x*v)))

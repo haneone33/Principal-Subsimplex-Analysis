@@ -1,7 +1,7 @@
 diatom.res = readRDS('../Principal-Subsimplex-Analysis/Diatom/Data/diatom_res.rds')
 
 rss.mat = matrix(NA, 6,6)
-rownames(rss.mat) = c('PSAS','PSAO','PCA','PCA_projected','Power_PCA','Logratio')
+rownames(rss.mat) = c('PSAS','PSAO','PCA','Power_PCA','Logratio','PCA_projected')
 colnames(rss.mat) = paste0('r=',1:6)
 
 for(r in 1:6){
@@ -22,9 +22,9 @@ for(r in 1:6){
   rss.mat[,r] = c(sum(rowSums((diatom.res$psas$pts.approx[[r.str]]-diatom.res$X)**2)),
                   sum(rowSums((diatom.res$psao$pts.approx[[r.str]]-diatom.res$X)**2)),
                   sum(rowSums((diatom.res$pca$pts.approx[[r.str]]-diatom.res$X)**2)),
-                  sum(rowSums((pca_projected-diatom.res$X)**2)),
                   sum(rowSums((power_projected-diatom.res$X)**2)),
-                  sum(rowSums((diatom.res$apca$pts.approx[[r.str]]-diatom.res$X)**2)))
+                  sum(rowSums((diatom.res$apca$pts.approx[[r.str]]-diatom.res$X)**2)),
+                  sum(rowSums((pca_projected-diatom.res$X)**2)))
 }
 
 
@@ -34,6 +34,8 @@ library(plyr)
 library(dplyr)
 library(ggplot2)
 library(reshape2)
+library(cowplot)
+library(GGally)
 
 
 df = rss.mat %>%
@@ -85,13 +87,14 @@ draw_biplot <- function(res){
   y = y/sqrt(mean(rowSums(y**2))/mean(rowSums(x**2)))/3
 
   dfx = data.frame(x = x[,1], y = x[,2], Depth = diatom.df$Depth)
-  dfy = data.frame(x = 0, y = 0, xend = y[,1], yend = y[,2], size = sqrt(rowSums(y[,1:2]**2)), label=diatom.info[rownames(y),]$code)
+  dfy = data.frame(x = 0, y = 0, xend = y[,1], yend = y[,2],
+                   size = sqrt(rowSums(y[,1:2]**2)),
+                   label=diatom.info[rownames(y),]$code,
+                   color=factor(diatom.info[rownames(y),]$color))
   dfy = dfy %>% arrange(desc(size)) %>% head(10)
 
   ggplot() +
     theme_bw() +
-    # geom_hline(yintercept=0, color='gray', linewidth=1) +
-    # geom_vline(xintercept=0, color='gray', linewidth=1) +
     geom_point(data=dfx, aes(x=x,y=y,col=Depth)) +
     geom_path(data=dfx, aes(x=x,y=y,col=Depth)) +
     scale_color_gradientn(colors = c('blue','magenta','red','orange','green'),
@@ -100,7 +103,9 @@ draw_biplot <- function(res){
                           guide = guide_colorbar(direction = "vertical", reverse = TRUE)) +
     geom_segment(data=dfy, aes(x=x,y=y,xend=xend,yend=yend),
                  arrow = arrow(length=unit(5,'points')), linewidth=0.2, color = 'black') +
-    geom_text(data=dfy, aes(x=xend, y=yend, label=label), color='black', size=3) +
+    new_scale_color() +
+    geom_text(data=dfy, aes(x=xend, y=yend, label=label, col=color), size=3) +
+    scale_color_manual(values = levels(dfy$color)) +
     labs(x='Comp.1', y='Comp.2') +
     theme(legend.position = 'none',
           plot.title=element_text(hjust=0.5))
@@ -121,7 +126,7 @@ g = plot_grid(get_legend(diatom.legend.point + theme(legend.key.size = unit(14, 
               draw_biplot(diatom.res$apca) + ggtitle('Log-ratio PCA') +
                 scale_x_continuous(limits=c(-7.3,7.3)) + scale_y_continuous(limits=c(-7.3,7.3)),
               nrow = 2, align='hv', axis='tblr')
-ggsave('2. Score_1vs2_3.jpeg', g, path = image.path, width = 10.5, height = 7)
+ggsave('score_biplot.jpeg', g, path = image.path, width = 10.5, height = 7)
 
 pca_projected = t(apply(diatom.res$pca$pts.approx[['r=2']], 1, function(x){
   x[x<0] = 0
@@ -222,27 +227,71 @@ g = parallel_coord(pca_projected, diatom.res$pca$scores[,1], diatom.info[as.char
   scale_y_continuous(limits=c(-0.1,0.2))
 ggsave('revision round 2/parallel_coord_pca_projected_r1_rb.jpeg', g, width = 12, height = 6)
 
+which.min(diatom.res$pca$pts.approx$`r=2`[,1])
+idx = 61
+data.frame(Method = 'True', variable = colnames(diatom.res$X),
+           value = diatom.res$X[idx,]) %>%
+  rbind(data.frame(Method = 'PCA', variable = colnames(diatom.res$X),
+                   value = diatom.res$pca$pts.approx$`r=2`[idx,])) %>%
+  rbind(data.frame(Method = 'PCA_projected', variable = colnames(diatom.res$X),
+                   value = pca_projected[idx,])) %>%
+  mutate(variable = factor(variable, levels = colnames(diatom.res$X)),
+         Method = factor(Method, levels=c('True','PCA','PCA_projected'))) %>%
+  ggplot(aes(x = variable, y = value, col = Method, group = Method)) +
+  geom_line() +
+  theme(axis.text.x = element_text(angle=90, hjust=1))
+
 
 data.frame(Method = 'True', Depth = diatom.df$Depth, value = diatom.df$Thalassiosira.insigna) %>%
   rbind(data.frame(Method = 'PCA', Depth = diatom.df$Depth, value = diatom.res$pca$pts.approx$`r=2`[,1])) %>%
   rbind(data.frame(Method = 'PCA_projected', Depth = diatom.df$Depth, value = pca_projected[,1])) %>%
-  rbind(data.frame(Method = 'PSAO', Depth = diatom.df$Depth, value = diatom.res$psao$pts.approx$`r=2`[,1])) %>%
-  mutate(Method = factor(Method, levels=c('True','PCA','PCA_projected','PSAO'))) %>%
+  mutate(Method = factor(Method, levels=c('True','PCA','PCA_projected'))) %>%
   ggplot(aes(x=Depth, y = value, group = Method, col = Method)) +
   theme_bw() +
   geom_line() +
-  scale_color_manual(values=c('black','red','green','cyan')) +
+  scale_color_manual(values=c('black','red','dodgerblue')) +
   labs(y = 'Rank 1 approximation', title = 'T. insigna')
 ggsave('revision round 2/approximation T insigna.jpeg', width = 8, height = 4)
 
 data.frame(Method = 'True', Depth = diatom.df$Depth, value = diatom.df$Fragilariopsis.barronii..) %>%
   rbind(data.frame(Method = 'PCA', Depth = diatom.df$Depth, value = diatom.res$pca$pts.approx$`r=2`[,2])) %>%
   rbind(data.frame(Method = 'PCA_projected', Depth = diatom.df$Depth, value = pca_projected[,2])) %>%
-  rbind(data.frame(Method = 'PSAO', Depth = diatom.df$Depth, value = diatom.res$psao$pts.approx$`r=2`[,2])) %>%
-  mutate(Method = factor(Method, levels=c('True','PCA','PCA_projected','PSAO'))) %>%
+  mutate(Method = factor(Method, levels=c('True','PCA','PCA_projected'))) %>%
   ggplot(aes(x=Depth, y = value, group = Method, col = Method)) +
   theme_bw() +
   geom_line() +
-  scale_color_manual(values=c('black','red','green','cyan')) +
+  scale_color_manual(values=c('black','red','dodgerblue')) +
   labs(y = 'Rank 1 approximation', title = 'F. barronii..')
 ggsave('revision round 2/approximation F barronii.jpeg', width = 8, height = 4)
+
+data.frame(Method = 'True', Depth = diatom.df$Depth, value = diatom.df$Fragilariopsis.aurica.) %>%
+  rbind(data.frame(Method = 'PCA', Depth = diatom.df$Depth, value = diatom.res$pca$pts.approx$`r=2`[,30])) %>%
+  rbind(data.frame(Method = 'PCA_projected', Depth = diatom.df$Depth, value = pca_projected[,30])) %>%
+  mutate(Method = factor(Method, levels=c('True','PCA','PCA_projected'))) %>%
+  ggplot(aes(x=Depth, y = value, group = Method, col = Method)) +
+  theme_bw() +
+  geom_line() +
+  scale_color_manual(values=c('black','red','dodgerblue')) +
+  labs(y = 'Rank 1 approximation', title = 'F. aurica')
+ggsave('revision round 2/approximation T insigna.jpeg', width = 8, height = 4)
+
+
+
+
+set.seed(1)
+p = 20
+n = 50
+X = cbind(matrix(abs(rexp(p*n, rate = 100)), n, p),
+          matrix(abs(rexp(p*n, rate = 10)), n, p))
+X[matrix(runif(p*n*2),n,p*2)>0.7] = 0
+X = sweep(X, 1, rowSums(X), '/')
+X.pca = comp_pca(X)
+X.psas = psa('s', X)
+plot_grid(parallel_coord(X, 1:n)+scale_y_continuous(limits=c(-0.1,0.5)),
+parallel_coord(X.psas$Xhat$`r=1`, 1:n)+scale_y_continuous(limits=c(-0.1,0.5)),
+parallel_coord(X.pca$Xhat$`r=1`, 1:n)+scale_y_continuous(limits=c(-0.1,0.5)),
+parallel_coord(to_simplex(X.pca$Xhat$`r=1`), 1:n)+scale_y_continuous(limits=c(-0.1,0.5)),
+parallel_coord(abs(X.pca$Xhat$`r=1`)-X, 1:n)+scale_y_continuous(limits=c(-0.5,0.3)),
+parallel_coord(X.psas$Xhat$`r=1`-X, 1:n)+scale_y_continuous(limits=c(-0.5,0.3)),
+nrow=3)
+
