@@ -17,36 +17,21 @@
 comp_pca <- function(X){
   n = nrow(X)
   d = ncol(X)-1
-  var.names = colnames(X)
+  X.pca = stats::prcomp(X)
 
   res = list(Xhat = list(), scores = NULL, RSS = 0, loadings = NULL, center = NULL)
-  X.pca = stats::princomp(X)
 
-  n = nrow(X)
-  d = ncol(X)-1
+  res$scores = X.pca$x
+  res$loadings = X.pca$rotation
+  res$RSS = X.pca$sdev^2
+  res$center = X.pca$center
 
   res$Xhat[['r=0']] = matrix(rep(X.pca$center, n), byrow=T, nrow = n, ncol = d+1)
+  colnames(res$Xhat[['r=0']]) = colnames(X)
   for(r in 1:d){
     res$Xhat[[paste0('r=',r)]] = res$Xhat[[paste0('r=',r-1)]] +
-      as.matrix(X.pca$scores[,r]) %*% t(X.pca$loadings[,r])
+      as.matrix(X.pca$x[,r]) %*% t(X.pca$rotation[,r])
   }
-  res$scores = X.pca$scores
-  colnames(res$scores) = paste0('PC',1:(d+1))
-  res$RSS = colSums(res$scores^2)
-
-  # res$modes[[paste0('r=',d+1)]] = matrix(NA, n, d+1)
-  # colnames(res$modes[[paste0('r=',d+1)]]) = var.names
-  # for(i in d:1){
-  #   res$modes[[paste0('r=',i)]] = res$Xhat[[paste0('r=',i+1)]] - res$Xhat[[paste0('r=',i)]]
-  # }
-  # res$modes = res$modes[(d+1):1]
-
-  res$loadings = X.pca$loadings
-  class(res$loadings) <- 'matrix'
-  colnames(res$loadings) = paste0('PC',1:(d+1))
-  res$center = X.pca$center
-  names(res$center) = colnames(X)
-
   return(res)
 }
 
@@ -60,8 +45,13 @@ comp_pca <- function(X){
 #'
 #' @export
 comp_power_pca <- function(X, alpha = 1/2){
-  X = X ** alpha
+  X = to_simplex(X^alpha)
   res = comp_pca(X)
+
+  for(r in 1:length(res$Xhat)){
+    res$Xhat[[r]] = to_simplex(to_simplex(res$Xhat[[r]]) ^ (1/alpha))
+  }
+
   return(res)
 }
 
@@ -102,44 +92,21 @@ comp_apca <- function(X){
     X = replace_zero(X)
   }
 
-  n = nrow(X)
-  d = ncol(X)-1
-  var.names = colnames(X)
+  XX = compositions::clr(X)
+  class(XX) <- 'numeric'
+  res = comp_pca(XX)
 
-  res = list(Xhat = list(), scores = NULL, RSS = 0,
-             loadings = NULL, center = NULL)
-  X.apca = stats::princomp(compositions::acomp(X))
-
-  ## representations in clr coordinate
-  res$Xhat[['r=0']] = matrix(rep(X.apca$center, n), byrow=T, nrow = n, ncol = d+1)
-  colnames(res$Xhat[['r=0']]) = var.names
-  for(r in 1:d){
-    res$Xhat[[paste0('r=',r)]] = res$Xhat[[paste0('r=',r-1)]] +
-      as.matrix(X.apca$scores[,r]) %*% t(X.apca$loadings[,r])
+  for(r in 1:length(res$Xhat)){
+    x = compositions::clrInv(res$Xhat[[r]])
+    class(x) <- 'numeric'
+    res$Xhat[[r]] = x
   }
-  res$scores = X.apca$scores
-  colnames(res$scores) = paste0('PC',1:(d+1))
-  res$RSS = colSums(res$scores^2)
+  return(res)
+}
 
-  ## representations in simplex coordinate
-  for(r in 0:d){
-    m = compositions::clrInv(res$Xhat[[paste0('r=',r)]])
-    class(m) = 'numeric'
-    res$Xhat[[paste0('r=',r)]] = m
-  }
 
-  # res$modes[[paste0('r=',d+1)]] = matrix(NA, n, d+1)
-  # colnames(res$modes[[paste0('r=',d+1)]]) = var.names
-  # for(i in d:1){
-  #   res$modes[[paste0('r=',i)]] = res$Xhat[[paste0('r=',i+1)]] - res$Xhat[[paste0('r=',i)]]
-  # }
-  # res$modes = res$modes[(d+1):1]
-
-  res$loadings = X.apca$loadings
-  class(res$loadings) <- 'matrix'
-  colnames(res$loadings) = paste0('PC',1:d)
-  res$center = X.apca$center
-  names(res$center) = colnames(X)
-
+flip_loading <- function(res, idx){
+  res$loadings[,idx] = -res$loadings[,idx]
+  res$scores[,idx] = -res$scores[,idx]
   return(res)
 }

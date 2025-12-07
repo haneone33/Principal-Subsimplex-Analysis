@@ -5,11 +5,15 @@
 #' @export
 to_simplex <- function(X){
   if(min(X)<0){
-    warning('X contains negative values')
+    # warning('X contains negative values')
     X = pmax(X, 0)
   }
-  X = t(apply(X, 1, function(x){  
-    x = x/sum(x)
-  }))
+  if(is.null(dim(X))){
+    X = X/sum(X)
+  }else{
+    X = t(apply(X, 1, function(x){
+      x = x/sum(x)
+    }))
+  }
   return(X)
 }

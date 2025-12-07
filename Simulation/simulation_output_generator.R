@@ -1,28 +1,14 @@
-require(devtools)
-devtools::install_github('haneone33/psacomp')
-library(psacomp)
+source('PSA_setup.R')
 
-require(plyr)
-require(dplyr)
-require(ggplot2)
-require(ggtern)
-require(GGally)
-require(scales)
-require(cowplot) # plot_grid
-require(reshape) # parallel coordinate plot
-require(latex2exp)
-require(compositions)
-
-invisible(lapply(list.files('utils', pattern = '.R', full.names = T), source))
-source('Simulation/simulation_data_generating_functions.R')
-
-data.path = 'Simulation/Data_updated/'
-image.path = 'Simulation/Figures_updated/'
+data.path = 'Simulation/Data/'
+image.path = 'Simulation/Figures/'
 dir.create(data.path, showWarnings = F)
 dir.create(image.path, showWarnings = F)
 
 ################################################################################
-## Example 1 data generation
+## Example 1
+################################################################################
+## data generation
 centers = list(c(0.05, 0.05, 0.9),
                c(0.05, 0.9, 0.05),
                c(0.9, 0.05, 0.05),
@@ -45,8 +31,8 @@ write.csv(ex1.df, paste0(data.path, 'ex1.csv'), row.names = F)
 
 ## PSA application
 
-ex1.psas = psa('s', X1)
-ex1.psao = psa('o', X1)
+ex1.psas = psa(X1, 's')
+ex1.psao = psa(X1, 'o')
 ex1.pca = comp_pca(X1)
 ex1.power_pca = comp_power_pca(X1, 0.5)
 ex1.apca = comp_apca(X1)
@@ -56,7 +42,7 @@ ex1.power_pca = flip_loading(ex1.power_pca, c(1,2))
 
 ################################################################################
 ## Example 1 figures
-
+################################################################################
 ## ternary plot with rank 1 approximation
 g.data = ternary_pc(X1, ex.label, type = 'data')
 g.psas = ternary_pc(X1, ex.label, type = 'psas', X.res = ex1.psas)
@@ -113,16 +99,16 @@ title.col = plot_grid(ggdraw(), ggdraw() + draw_label('PSA-S'),
                       ggdraw(), ggdraw() + draw_label('Power Transform PCA'),
                       ggdraw(), ggdraw() + draw_label('Log-Ratio PCA'),
                       nrow = 1, rel_widths = rep(c(0.3,1),5))
-g.main = plot_grid(loading_bar(ex1.psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex1.apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+g.main = plot_grid(plot_vertex(ex1.psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex1.apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
                    nrow = 2, byrow = F)
 
 g = plot_grid(ggdraw(), title.col,
@@ -143,7 +129,7 @@ ggsave('ex1_variance_explained.jpeg', g, path = image.path, width = 8, height = 
 
 ################################################################################
 ## Example 2
-
+################################################################################
 ## data generation
 set.seed(1)
 X2 = cbind(X1, matrix(rnorm(30*3, mean = 0, sd = sqrt(sigma2)), ncol = 3))
@@ -156,14 +142,15 @@ ex2.df$label = ex.label
 write.csv(ex2.df, paste0(data.path, 'ex2.csv'), row.names = F)
 
 ## PSA application
-ex2.psas = psa('s', X2)
-ex2.psao = psa('o', X2)
+ex2.psas = psa(X2, 's')
+ex2.psao = psa(X2 ,'o')
 ex2.pca = comp_pca(X2)
 ex2.power_pca = comp_power_pca(X2, 0.5)
 ex2.apca = comp_apca(X2)
 
-ex2.pca = flip_loading(ex2.pca, c(1,2,3,4))
-ex2.power_pca = flip_loading(ex2.power_pca, c(1,2,3,4))
+ex2.pca = flip_loading(ex2.pca, c(1,3))
+ex2.power_pca = flip_loading(ex2.power_pca, c(1,3))
+ex2.apca = flip_loading(ex2.apca, c(1,2))
 
 ## score scatter plot matrices
 g.data <- ggplot() + theme_void()
@@ -204,26 +191,26 @@ title.col = plot_grid(ggdraw(), ggdraw() + draw_label('PSA-S'),
                       ggdraw(), ggdraw() + draw_label('Power Transform PCA'),
                       ggdraw(), ggdraw() + draw_label('Log-Ratio PCA'),
                       nrow = 1, rel_widths = rep(c(0.2,1),5))
-g.main = plot_grid(loading_bar(ex2.psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psas$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psas$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psao$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.psao$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.power_pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.power_pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.apca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
-                   loading_bar(ex2.apca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+g.main = plot_grid(plot_vertex(ex2.psas$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psas$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psas$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psas$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psao$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psao$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psao$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.psao$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.power_pca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.power_pca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.power_pca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.power_pca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.apca$loadings[,1]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.apca$loadings[,2]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.apca$loadings[,3]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
+                   plot_vertex(ex2.apca$loadings[,4]) + theme(plot.margin = unit(c(5, 5, -10, 5), 'pt')),
                    nrow = 4, byrow = F)
 
 g = plot_grid(ggdraw(), title.col,
@@ -244,7 +231,7 @@ ggsave('ex2_variance_explained.jpeg', g, path = image.path, width = 8, height = 
 
 ################################################################################
 ## Example 1 modes of variation
-
+################################################################################
 X.data = to_2d(X1)
 X.data$label = ex.label
 
@@ -283,7 +270,7 @@ for(t in c(1:9)/10){
 
 g1 = g1 + annotate(geom = 'text', x = -0.7, y = 0.7,
                    label = TeX(r'($\hat{V}^{(1)}_1$)')) +
-  annotate(geom = 'text', x = 1.1, y = 0.1,
+  annotate(geom = 'text', x = 1.1, y = 0.2,
            label = TeX(r'($=\hat{V}^{(1)}_2$)')) +
   annotate(geom = 'text', x = 0, y = 0.5,
            label = TeX(r'($\hat{V}^{(0)}_1$)'))
@@ -323,7 +310,7 @@ for(t in c(1:9)/10){
 
 g2 = g2 + annotate(geom = 'text', x = -0.7, y = 0.7,
                    label = TeX(r'($\hat{V}^{(1)}_1$)')) +
-  annotate(geom = 'text', x = 1.1, y = 0.1,
+  annotate(geom = 'text', x = 1.1, y = 0.2,
            label = TeX(r'($=\hat{V}^{(1)}_2$)')) +
   annotate(geom = 'text', x = 0, y = 0.5,
            label = TeX(r'($\hat{V}^{(0)}_1$)'))

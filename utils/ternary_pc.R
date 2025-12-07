@@ -116,34 +116,25 @@ ternary_pc <- function(X, X.label, type = 'data', X.res = NULL, t.grid = NULL){
     }
 
     X.pc1 = sweep(t.grid %*% t(X.res$loadings[,1]), 2, X.res$center, '+')
+    X.pc1 = to_simplex(X.pc1[X.pc1[,1] >= 0 & X.pc1[,2] >= 0 & X.pc1[,3] >= 0,] ^ (1/alpha))
     X.pc1 = as.data.frame(X.pc1)
-    X.center = as.data.frame(t(X.res$center))
+    X.center = to_simplex(X.res$center ^ (1/alpha))
+    X.center = as.data.frame(t(X.center))
 
     g <- draw_ternary_pc(X, proj_simplex(X.res$Xhat$`r=1`),
                          proj_simplex(X.pc1), proj_simplex(X.center), X.colors) +
       ggtitle('Power Transform PCA')
 
     for(i in 1:nrow(X)){
-      x = as.numeric(X[i,]**alpha) # power transform
-      y = as.numeric(X.res$Xhat$`r=1`[i,]) # approximation
-      z = as.numeric(X[i,]) # original point
-      proj.path.xy = as.data.frame(rbind(x,y))
-      proj.path.xz = as.data.frame(rbind(x,z))
+      x = to_simplex(X.res$Xhat$`r=1`[i,] ^ alpha) # approximation
+      y = to_simplex(X[i,] ^ alpha) # original point
+      proj.path = cbind(seq(x[1], y[1], length.out = m),
+                        seq(x[2], y[2], length.out = m),
+                        seq(x[3], y[3], length.out = m))
+      proj.path = as.data.frame(to_simplex(proj.path ^ (1/alpha)))
       g <- g +
-        geom_point(data = to_2d(proj_simplex(t(x))), color = X.colors[i], pch = "*", size = 5) +
-        geom_path(data = to_2d(proj_simplex(proj.path.xz)), color = X.colors[i]) +
-        geom_path(data = to_2d(proj_simplex(proj.path.xy)), color = X.colors[i])
+        geom_path(data = to_2d(proj_simplex(proj.path)), color = X.colors[i])
     }
-
-    ## draw boundary of orthant
-    tt.grid = seq(0,pi/2,length.out = 51)
-    boundary.12 = cbind(cos(tt.grid),sin(tt.grid),0)
-    boundary.13 = cbind(cos(tt.grid),0,sin(tt.grid))
-    boundary.23 = cbind(0,cos(tt.grid),sin(tt.grid))
-    g <- g +
-      geom_path(data = to_2d(proj_simplex(boundary.12)), color = 'black') +
-      geom_path(data = to_2d(proj_simplex(boundary.23)), color = 'black') +
-      geom_path(data = to_2d(proj_simplex(boundary.13)), color = 'black')
 
     return(g)
 
