@@ -37,8 +37,9 @@ ex1.pca = comp_pca(X1)
 ex1.power_pca = comp_power_pca(X1, 0.5)
 ex1.apca = comp_apca(X1)
 
-ex1.pca = flip_loading(ex1.pca, c(1,2))
-ex1.power_pca = flip_loading(ex1.power_pca, c(1,2))
+ex1.pca = flip_loading(ex1.pca, c(1))
+ex1.power_pca = flip_loading(ex1.power_pca, c(1))
+ex1.apca = flip_loading(ex1.apca, c(1,2))
 
 ################################################################################
 ## Example 1 figures
@@ -65,19 +66,19 @@ g.data <- ggtern(ex1.df, aes(x = V1, y = V3, z = V2, col = label)) +
   labs(T = 'V3', L = 'V1', R = 'V2', x = NULL, y = NULL)
 g.data <- ggplot_gtable(ggtern::ggplot_build(g.data))
 
-g.psas = point_gpairs(ex1.psas$scores, ex.label) +
+g.psas = point_gpairs(ex1.psas$scores, ex.label, 2) +
   ggtitle('PSA-S') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.psao = point_gpairs(ex1.psao$scores, ex.label) +
+g.psao = point_gpairs(ex1.psao$scores, ex.label, 2) +
   ggtitle('PSA-O') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.pca = point_gpairs(ex1.pca$scores, ex.label) +
+g.pca = point_gpairs(ex1.pca$scores, ex.label, 2) +
   ggtitle('PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.power = point_gpairs(ex1.power_pca$scores, ex.label) +
+g.power = point_gpairs(ex1.power_pca$scores, ex.label, 2) +
   ggtitle('Power Transform PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
-g.apca = point_gpairs(ex1.apca$scores, ex.label) +
+g.apca = point_gpairs(ex1.apca$scores, ex.label, 2) +
   ggtitle('Log-ratio PCA') +
   theme(plot.title = element_text(hjust = 0.5, size = 15))
 
@@ -150,7 +151,7 @@ ex2.apca = comp_apca(X2)
 
 ex2.pca = flip_loading(ex2.pca, c(1,3))
 ex2.power_pca = flip_loading(ex2.power_pca, c(1,3))
-ex2.apca = flip_loading(ex2.apca, c(1,2))
+ex2.apca = flip_loading(ex2.apca, c(1,2,3))
 
 ## score scatter plot matrices
 g.data <- ggplot() + theme_void()
